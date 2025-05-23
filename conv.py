@@ -1,16 +1,25 @@
 import os, pymupdf, argparse
 
-def conv(pdfpath, pages, output_dir = None, dpi=300, filename=None):
+def conv(pdfpath, pages_to_convert, dpi=300, filename=None):
     if not os.path.exists(pdfpath):
         print("Erro: o diretório do arquivo PDF não existe.")
         return False
     
     try:
+        dpi_zoom =  dpi / 72
         pdf_doc = pymupdf.open(pdfpath)
-        #if pages is None:
-        for page in pdf_doc:
-            page_img =  page.get_pixmap(matrix=pymupdf.Matrix(2, 2))
-            page_img.save(f"{filename}{page.number + 1}.png")
+
+        if isinstance(pages_to_convert, range):
+            for i in pages_to_convert:
+                page = pdf_doc[i]
+                page_img = page.get_pixmap(matrix=pymupdf.Matrix(dpi_zoom, dpi_zoom))
+                page_img.save(f"{filename}{i + 1}.png")
+
+        elif isinstance(pages_to_convert, int):
+            for page in pdf_doc:
+                page_img =  page.get_pixmap(matrix=pymupdf.Matrix(dpi_zoom, dpi_zoom))
+                page_img.save(f"{filename}{page.number + 1}.png")
+
         print("Conversão finalizada com sucesso.")
         pdf_doc.close()
         return True
@@ -21,8 +30,16 @@ def conv(pdfpath, pages, output_dir = None, dpi=300, filename=None):
 
 def parse_pages(input_str, pages):
     input_str = input_str.strip().upper()
+    
     if input_str == "T":
         return pages
+    
+    if input_str.isdigit():
+        page = int(input_str)
+        if page > pages or page < 1:
+            print("ERRO: Página escolhida fora do intervalo do documento.")
+            return None
+        return range(page - 1, page)
     
     if "-" in input_str:
         interval = input_str.split("-")
@@ -58,20 +75,36 @@ def main():
 
     if pages > 1:
         print(f"Seu arquivo possui {pages} páginas.")
-        choice = input("Quais páginas deseja converter? \n - Digite T para todas \n - Ou (X-Y) para um intervalo específico: \n: ")
+        choice = input("Quais páginas deseja converter? \n - Digite T para todas" \
+                "\n - Uma única página da sua escolha" \
+                "\n - Ou (X-Y) para um intervalo específico" \
+                "\n - ")
         pages_to_convert = parse_pages(choice, pages) #Aqui chama a função parse_pages acima
         
         while pages_to_convert is None:
-            choice = input("Quais páginas deseja converter? \n - Digite T para todas \n - Ou (X-Y) para um intervalo específico: \n: ")
+            choice = input("Quais páginas deseja converter? \n - Digite T para todas" \
+                "\n - Uma única página da sua escolha"
+                "\n - Ou (X-Y) para um intervalo específico" \
+                "\n - ")
             pages_to_convert = parse_pages(choice, pages)
 
-    filename = os.path.splitext(os.path.basename(args.pdfpath))[0]
-    custom_name = input(f"Digite um nome para seu arquivo final, ou pressione ENTER para manter o nome do arquivo-mãe ({filename}):\n: ")
+    file_name = os.path.splitext(os.path.basename(args.pdfpath))[0]
+
+    map = {
+        "1": 72,
+        "2": 144,
+        "3": 300
+    }
+
+    quality = input("Escolha a qualidade da imagem:\n1 - Baixa\n2 - Padrão\n3 - Alta\n")
+    dpi = map.get(quality, 144)
+
+    custom_name = input(f"Digite um nome para seu arquivo final, ou pressione ENTER para manter o nome do arquivo-mãe ({file_name}):\n")
 
     if not custom_name: 
-        custom_name = filename
+        custom_name = file_name
 
-    conv(args.pdfpath, pages, filename=custom_name)
+    conv(args.pdfpath, pages_to_convert, dpi=dpi, filename=custom_name)
 
 if __name__ == "__main__":
     main()

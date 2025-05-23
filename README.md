@@ -8,7 +8,7 @@ Criar uma ferramenta simples  para extrair imagens de arquivos PDF. Será desenv
 
 | Plataforma | Status        | Tipo             |
 |------------|---------------|------------------|
-| Python     | 🛠️ Em andamento | CLI            |
+| Python     | ✅ Concluído | CLI            |
 | Node.js    | 🔜 Planejado | CLI               |
 | C#         | 🔜 Planejado | Interface gráfica |
 | Java       | 🔜 Planejado | Interface gráfica |
@@ -23,9 +23,7 @@ Coloque o arquivo conv.py em uma pasta qualquer, junto com seu PDF, e dentro da 
 ### 3. Processo de Conversão
 Em caso de PDFs com mais de uma página, será perguntado se o usuário deseja converter todas as páginas, ou somente um intervalo.
 
-Digite **T** para todas, ou **X-Y** para um intervalo (2-5, por exemplo).
-
-*Nota: a funcionalidade de selecionar intervalo de páginas está em processo de finalização.*
+Digite **T** para todas, uma página específica, ou **X-Y** para um intervalo (2-5, por exemplo).
 
 Depois será perguntado se deseja manter o nome do arquivo original, ou usar um nome personalizado.
 ### 4. Resultado
