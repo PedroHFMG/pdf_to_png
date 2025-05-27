@@ -49,15 +49,15 @@ def parse_pages(input_str, pages):
             end = int(interval[1]) - 1
 
             if start < 0 or end < 0:
-                print("Há valores negativos no seu intervalo. Digite novamente um intervalo válido.")
+                print("ERRO: Há valores negativos no seu intervalo. Digite novamente um intervalo válido.")
                 return None
             
             if start > end:
-                print("Sua página inicial é maior que a final. Intervalo inválido.")
+                print("ERRO: Sua página inicial é maior que a final. Intervalo inválido.")
                 return None
             
             if end >= pages:
-                print("O intervalo digitado ultrapassa o intervalo de páginas do documento.")
+                print("ERRO: O intervalo digitado ultrapassa o intervalo de páginas do documento.")
                 return None
             
             return range(start, end + 1)
@@ -70,6 +70,10 @@ def main():
     parser.add_argument('pdfpath', help='Arquivo PDF de entrada (precisa estar na mesma pasta).')
     args = parser.parse_args()
 
+    if not args.pdfpath.endswith('.pdf'):
+        print("O arquivo precisa ser um documento .pdf.")
+        return False
+
     pdf_doc = pymupdf.open(args.pdfpath)
     pages = pdf_doc.page_count
 
@@ -79,12 +83,12 @@ def main():
                 "\n - Uma única página da sua escolha" \
                 "\n - Ou (X-Y) para um intervalo específico" \
                 "\n - ")
-        pages_to_convert = parse_pages(choice, pages) #Aqui chama a função parse_pages acima
+        pages_to_convert = parse_pages(choice, pages)
         
         while pages_to_convert is None:
-            choice = input("Quais páginas deseja converter? \n - Digite T para todas" \
-                "\n - Uma única página da sua escolha"
-                "\n - Ou (X-Y) para um intervalo específico" \
+            choice = input("Quais páginas deseja converter? \n - Digite T para todas," \
+                "\n - Uma única página da sua escolha,"
+                "\n - Ou (X-Y) para um intervalo específico." \
                 "\n - ")
             pages_to_convert = parse_pages(choice, pages)
 
@@ -96,15 +100,16 @@ def main():
         "3": 300
     }
 
-    quality = input("Escolha a qualidade da imagem:\n1 - Baixa\n2 - Padrão\n3 - Alta\n")
+    quality = input("Escolha a qualidade da imagem:\n1 - Baixa\n2 - Padrão\n3 - Alta\n - ")
     dpi = map.get(quality, 144)
 
-    custom_name = input(f"Digite um nome para seu arquivo final, ou pressione ENTER para manter o nome do arquivo-mãe ({file_name}):\n")
+    custom_name = input(f"Digite um nome para seu arquivo final, ou pressione ENTER para manter o nome do arquivo-mãe ({file_name}):\n - ")
 
     if not custom_name: 
         custom_name = file_name
 
     conv(args.pdfpath, pages_to_convert, dpi=dpi, filename=custom_name)
+    pdf_doc.close()
 
 if __name__ == "__main__":
     main()
